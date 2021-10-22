@@ -36,9 +36,23 @@ def part_a(n:int=21, p:float=0.3, ntrials:int=5000):
         This is a nested function only accessible by parent sim_prob,
         which we're in now. You may want to implement this function!
         """
-        pass
-    
-    pass # TODO: Your code here (10-20 lines)
+        player_1_points = 0
+        player_2_points = 0
+        while True:
+            r = np.random.rand()
+            if r <= p:
+                player_1_points = player_1_points + 1
+            else:
+                player_2_points = player_2_points + 1
+
+            if player_1_points + player_2_points >= n and np.abs(player_1_points - player_2_points) > 1:
+                return player_1_points
+
+    points = 0
+    for i in range(ntrials):
+        points += sim_one_game()
+
+    return points / ntrials
 
 def part_b():
     """
