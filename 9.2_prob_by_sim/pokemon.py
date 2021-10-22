@@ -30,6 +30,7 @@ you catch it. (Ignore any mechanics of the actual game if you’ve played
 a Pokemon game in the past.)
 """
 
+
 def part_a(filename:str='data/pokemon_small.txt'):
     """
     Compute the proportion of Pokemon that are legendary, the average
@@ -45,7 +46,11 @@ def part_a(filename:str='data/pokemon_small.txt'):
     files to test your function.
     2. Use np.mean(...) with its axis parameter to compute means in one line.
     """
-    pass # TODO: Your code here (<= 3 lines)
+
+    data = np.genfromtxt(filename)
+    legendary = data[data[:, 1] > 0, 2:]
+    return np.mean(legendary, axis=0)
+
 
 def part_b(filename:str='data/pokemon_small.txt'):
     """
@@ -60,7 +65,12 @@ def part_b(filename:str='data/pokemon_small.txt'):
     1. Use np.median(...) to compute medians along an axis.
     2. Use np.where(...) to select only certain rows.
     """
-    pass # TODO: Your code here (<= 5 lines)
+    data = np.genfromtxt(filename)
+    median_weight = np.median(data[:, 3], axis=0)
+    legendary = data[data[:, 1] > 0, 2:]
+    heavier_leg = legendary[np.where(legendary[:, 1] > median_weight)]
+    return np.mean(heavier_leg, axis=0)
+
 
 def part_c(filename:str='data/pokemon_small.txt', ntrials:int=5000):
     """
@@ -79,14 +89,33 @@ def part_c(filename:str='data/pokemon_small.txt', ntrials:int=5000):
     being np.arange(...) and the parameter p being the data column!
     """
 
+    data = np.genfromtxt(filename)
+
     def sim_one():
         """
         This is a nested function only accessible by parent 'part_c',
         which we're in now. You may want to implement this function!
         """
-        pass
 
-    pass # TODO: Your code here (10-20 lines)
+        is_encountered = np.zeros(data[:, 0].shape,)
+        n_pokemon = len(is_encountered)
+        idxs_pokenmon = np.arange(n_pokemon)
+
+        steps = 0
+        while True:
+            steps += 1
+            indx = int(np.random.choice(idxs_pokenmon, p=data[:, 4]))
+            is_encountered[indx] = 1
+
+            if is_encountered.sum() == n_pokemon:
+                return steps
+
+    all_steps = 0
+    for i in range(ntrials):
+        all_steps += sim_one()
+
+    return all_steps / ntrials
+
 
 def part_d(filename:str='data/pokemon_small.txt', ntrials:int=5000):
     """
@@ -113,13 +142,30 @@ def part_d(filename:str='data/pokemon_small.txt', ntrials:int=5000):
         This is a nested function only accessible by parent 'part_d',
         which we're in now. You may want to implement this function!
         """
-        pass
-    
-    pass # TODO: Your code here (10-20 lines)
+        is_catched = np.zeros(n_pokemon)
+        idxs_pokenmon = np.arange(n_pokemon)
+
+        steps = 0
+        while True:
+            steps += 1
+            encountered = int(np.random.choice(idxs_pokenmon, p=data[:, 0]))
+
+            if data[encountered, 1] > np.random.rand():
+                is_catched[encountered] = 1
+
+            if is_catched.sum() == n_pokemon:
+                return steps
+
+    all_steps = 0
+    for i in range(ntrials):
+        all_steps += sim_one()
+
+    return all_steps / ntrials
+
 
 if __name__ == '__main__':
     # You can test out things here. Feel free to write anything below.
-    print(part_a())
-    print(part_b())
-    print(part_c())
-    print(part_d())
+    print(part_a(filename="data/pokemon.txt"))
+    print(part_b(filename="data/pokemon.txt"))
+    print(part_c(filename="data/pokemon.txt"))
+    print(part_d(filename="data/pokemon.txt"))
