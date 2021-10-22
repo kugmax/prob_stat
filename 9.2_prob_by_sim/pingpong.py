@@ -40,19 +40,19 @@ def part_a(n:int=21, p:float=0.3, ntrials:int=5000):
         player_2_points = 0
         while True:
             r = np.random.rand()
-            if r <= p:
+            if r < p:
                 player_1_points = player_1_points + 1
             else:
                 player_2_points = player_2_points + 1
 
             if player_1_points + player_2_points >= n and np.abs(player_1_points - player_2_points) > 1:
-                return player_1_points
+                return 1 if player_1_points > player_2_points else 0
 
-    points = 0
+    won_games = 0
     for i in range(ntrials):
-        points += sim_one_game()
+        won_games += sim_one_game()
 
-    return points / ntrials
+    return won_games / ntrials
 
 def part_b():
     """
@@ -78,8 +78,24 @@ def part_b():
 
     :return: Nothing. Just save the plot you made!
     """
-    
-    pass # TODO: Your code here (10-20 lines)
+    def generate(n, step=4):
+        result = dict()
+        for i in range(0, 100+step, step):
+            p = i / 100
+            result[p] = part_a(n=n, p=p)
+
+        return result
+
+    n_3_prob = generate(n=3)
+    n_11_prob = generate(n=11)
+    n_21_prob = generate(n=21)
+
+    plt.plot(n_3_prob.keys(), n_3_prob.values(), "-b", label="n=3")
+    plt.plot(n_11_prob.keys(), n_11_prob.values(), "--r", label="n=11")
+    plt.plot(n_21_prob.keys(), n_21_prob.values(), "-.g", label="n=21")
+
+    plt.legend(loc="upper left")
+    plt.savefig('ping_pong.png')
 
 if __name__ == '__main__':
     # You can test out things here. Feel free to write anything below.
