@@ -31,6 +31,7 @@ import os
 # set of all of the distinct tokens in the file.
 # =============================================================
 
+
 class NaiveBayes():
     """
     This is a Naive Bayes spam filter, that learns word spam probabilities 
@@ -82,7 +83,7 @@ class NaiveBayes():
 
         return train_hams, train_spams, test_hams, test_spams
 
-    def word_set(self, filename:list):
+    def word_set(self, filename):
         """ 
         This function reads in a file and returns a set of all 
         the words. It ignores the subject line.
@@ -131,16 +132,30 @@ class NaiveBayes():
         2. You should not worry about Laplace smoothing or anything here:
         simply make sure your counts are correct from the data you're given.
         """
-        def get_counts(filenames:list):
+        def get_counts(filenames: list):
             """
             This is a nested function only accessible by parent 'fit',
             which we're in now. You may want to implement this function
             to avoid writing the same code for self.word_counts_spam and
             self.word_counts_ham!
             """
-            pass
+            word_counts = {}
+            for filename in filenames:
+                words = self.word_set(filename)
+                for word in words:
 
-        pass # TODO: Your code here (10-20 lines)
+                    if word in word_counts:
+                        word_counts[word] += 1
+                    else:
+                        word_counts[word] = 1
+
+            return word_counts
+
+        self.num_train_hams = len(train_hams)
+        self.num_train_spams = len(train_spams)
+
+        self.word_counts_ham = get_counts(train_hams)
+        self.word_counts_spam = get_counts(train_spams)
 
     def predict(self, filename:str):
         """
@@ -169,8 +184,27 @@ class NaiveBayes():
         4. You'll want to use the values you set during the fit function.
         Access those variables with a 'self' prefix, like self.num_train_hams.
         """
-        pass # TODO: Your code here (10-20 lines)
-            
+
+        words = self.word_set(filename)
+
+        num_total_emails = self.num_train_hams + self.num_train_spams
+
+        p_ham = self.num_train_hams / num_total_emails
+        p_spam = self.num_train_spams / num_total_emails
+
+        nominator = np.log(p_spam)
+        ham_denominator = np.log(p_ham)
+
+        for word in words:
+            p_word_spam = (self.word_counts_spam.get(word, 0) + 1) / (self.num_train_spams + 2)
+            p_word_ham = (self.word_counts_ham.get(word, 0) + 1) / (self.num_train_hams + 2)
+
+            nominator += np.log(p_word_spam)
+            ham_denominator += np.log(p_word_ham)
+
+        p = nominator / (nominator + ham_denominator)
+
+        return self.HAM_LABEL if p >= 0.5 else self.SPAM_LABEL
 
     def accuracy(self, hams:list, spams:list):
         """
@@ -187,6 +221,7 @@ class NaiveBayes():
             if self.predict(filename) == self.SPAM_LABEL:
                 total_correct += 1
         return total_correct / total_datapoints
+
 
 if __name__ == '__main__':
     # Create a Naive Bayes classifier.
