@@ -15,6 +15,7 @@
 import numpy as np
 import mmh3
 
+
 class BloomFilter:
     def __init__(self, k:int = 10, m:int=100000):
         """
@@ -56,7 +57,9 @@ class BloomFilter:
         boolean, so 1 should be represented as True, and 0 as 
         False.
         """
-        pass # TODO: Your code here (2 lines)
+        for i in range(self.k):
+            h = self.hash(x, i)
+            self.t[i, h] = True
 
     def contains(self, x) -> bool:
         """
@@ -74,7 +77,14 @@ class BloomFilter:
         boolean, so 1 should be represented as True, and 0 as 
         False.
         """
-        pass # TODO: Your code here (<= 5 lines)
+        for i in range(self.k):
+            h = self.hash(x, i)
+
+            if not self.t[i, h]:
+                return False
+
+        return True
+
 
 if __name__ == '__main__':
     # You can test out things here. Feel free to write anything below.
