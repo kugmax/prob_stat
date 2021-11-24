@@ -15,6 +15,7 @@
 import numpy as np
 import mmh3
 
+
 class DistElts:
     def __init__(self, seed_offset:int=0):
         """
@@ -50,7 +51,10 @@ class DistElts:
         Hint(s):
         1. You will want to use self.hash(...).
         """
-        pass # TODO: Your code here (1 line)
+
+        new_val = self.hash(x)
+        if new_val < self.val:
+            self.val = new_val
 
     def estimate(self) -> int:
         """        
@@ -61,7 +65,8 @@ class DistElts:
         Hint(s):
         1. You will want to use self.val here.
         """
-        pass # TODO: Your code here (1 line)
+        return np.round(1 / self.val - 1)
+
 
 class MultDistElts:
     def __init__(self, num_reps:int=1):
@@ -81,7 +86,8 @@ class MultDistElts:
         In this function, you'll call `update` for all the 
         DistElts objects in self.des.
         """
-        pass # TODO: Your code here (2 lines)
+        for des in self.des:
+            des.update(x)
 
     def estimate(self) -> int:
         """        
@@ -99,7 +105,10 @@ class MultDistElts:
            de = DistElts(seed_offset=0) # a DistElts Object
            val = de.val                 # the val field of de
         """
-        pass # TODO: Your code here (1-5 lines)
+
+        multi_val = np.sum([des.val for des in self.des]) / self.num_reps
+        return np.round(1 / multi_val - 1)
+
 
 if __name__ == '__main__':
     # You can test out things here. Feel free to write anything below.
