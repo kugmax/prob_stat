@@ -16,6 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from os.path import join, dirname
 
+
 class KnapsackMcmc:
     def __init__(self, filename=join(dirname(__file__), 'data', 'items.txt')):
         self.item_names, self.values, self.weights = self.get_items(filename)
@@ -43,7 +44,7 @@ class KnapsackMcmc:
         the value of `subset`?
         """
         assert self.values.shape == subset.shape
-        return 0 # TODO: Your code here (~1-4 lines)
+        return np.dot(subset, self.values)
 
     def weight(self, subset):
         """
@@ -52,7 +53,7 @@ class KnapsackMcmc:
         :return: The total weight of the subset (the sum of the weights of the items in subset).
         """
         assert self.weights.shape == subset.shape
-        return 0 # TODO: Your code here (~1-4 lines)
+        return np.dot(subset, self.weights)
 
     def mcmc(self, W:float, T:float=0, num_iter:int=5000):
         """
@@ -89,8 +90,27 @@ class KnapsackMcmc:
 
         # This line creates your initial empty subset (knapsack).
         subset = np.zeros(self.num_items)
-        # TODO: Your code here (~10-20 lines)
-        return None, None, None
+        best_subset = subset
+        current_values = np.zeros(num_iter)
+
+        for i in range(num_iter):
+            k = np.random.randint(0, self.num_items)
+
+            new_subset = np.copy(subset)
+            new_subset[k] = 1 if new_subset[k] == 0 else 0
+
+            current_value = self.value(subset)
+            current_values[i] = current_value
+
+            delta = self.value(new_subset) - current_value
+            if self.weight(new_subset) <= W:
+                if delta > 0 or (T > 0 and np.random.rand() < np.exp(delta / T)):
+                    subset = new_subset
+
+                    if self.value(subset) > self.value(best_subset):
+                        best_subset = subset
+
+        return best_subset, self.value(best_subset), current_values
 
     def make_plot(self, W:float, T:float=0, num_iter:int=5000, trials:int=10):
         """
@@ -127,6 +147,7 @@ class KnapsackMcmc:
         plt.title('Every trial is a different color.')
         plt.savefig('mcmc_T={}.png'.format(T))
         return max_subset, max_value
+
 
 if __name__ == '__main__':
     knapsack_solver = KnapsackMcmc()
