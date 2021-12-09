@@ -14,6 +14,7 @@
 
 import numpy as np
 
+
 def bootstrap_pval(group1, group2, ntrials=50000):
     """
     :param group1: A numpy array of values in one particular group.
@@ -34,9 +35,26 @@ def bootstrap_pval(group1, group2, ntrials=50000):
     4. You MUST use np.random.choice(...) with the parameter `replace=True`, to sample
     with replacement.
     5. Remember that when you resample, to make sure the number of resampled values is
-    the same as that of the original. 
+    the same as that of the original.
     """
-    pass # TODO: Your code here (~10-15 lines)
+
+    g1_size = group1.shape[0]
+    g2_size = group2.shape[0]
+
+    ob_diff = np.abs(np.mean(group2) - np.mean(group1))
+
+    all_samples = np.concatenate((group1, group2))
+    count = 0
+    for i in range(ntrials):
+        x_head = np.random.choice(all_samples, g1_size)
+        y_head = np.random.choice(all_samples, g2_size)
+
+        sample_diff = np.abs(np.mean(y_head) - np.mean(x_head))
+        if sample_diff >= ob_diff:
+            count += 1
+
+    return count / ntrials
+
 
 if __name__ == '__main__':
     """
