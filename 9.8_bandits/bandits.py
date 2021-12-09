@@ -15,6 +15,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class MultiArmedBandit:
     """
     An instance of the MultiArmedBandit class contains K arms, where
@@ -144,8 +145,22 @@ class MultiArmedBandit:
         """
         self.reset_history()
 
-        # TODO: Your code here (~15-20 lines)
-        # Do NOT delete/modify the line above and below this comment.
+        pulled_times = np.zeros(self.K)
+        p_head = np.zeros(self.K)
+
+        for i in range(self.K):
+            p_head[i] = self.pull_arm(i)
+            pulled_times[i] += 1
+
+        for i in range(self.K, T):
+            l = (np.log(i) * 2)
+
+            a = np.argmax(p_head + np.sqrt(l / pulled_times))
+
+            r = self.pull_arm(a)
+
+            pulled_times[a] += 1
+            p_head[a] = r / pulled_times[a]
 
         return np.sum(self.reward_history)
 
@@ -170,11 +185,25 @@ class MultiArmedBandit:
         5. Use the function np.argmax(...).
         """
         self.reset_history()
-        
-        # TODO: Your code here (~10-15 lines)
-        # Do NOT delete/modify the line above and below this comment.
+
+        beta_args = np.ones((self.K, 2))
+
+        for i in range(T):
+            sample = np.random.beta(beta_args[:, 0], beta_args[:, 1])
+            arm = np.argmax(sample)
+            reward = self.pull_arm(arm)
+
+            if reward == 1:
+                beta_args[arm, 0] += 1
+
+            elif reward == 0:
+                beta_args[arm, 1] += 1
+            else:
+                print("ERROR reward " + reward)
+                return -1
 
         return np.sum(self.reward_history)
+
 
 if __name__ == '__main__':
     """
